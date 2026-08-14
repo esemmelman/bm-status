@@ -226,6 +226,19 @@ function renderLearnerNotes() {
   learnerNotesEditor.innerHTML = learnerNotes[selectedStudent] || "";
 }
 
+function focusEditorEnd(editor) {
+  editor.focus();
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  requestAnimationFrame(() => {
+    editor.scrollTop = editor.scrollHeight;
+  });
+}
+
 function renderSkills() {
   selectedName.textContent = selectedStudent.split(" ")[0];
   const date = dateInput.value;
@@ -369,7 +382,7 @@ studentList.addEventListener("click", event => {
     renderLearnerNotes();
     renderSkills();
     renderHistory();
-    if (learnerNotesOpen) learnerNotesEditor.focus();
+    if (learnerNotesOpen) focusEditorEnd(learnerNotesEditor);
     return;
   }
   const button = event.target.closest("[data-student]");

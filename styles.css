@@ -64,7 +64,7 @@ section { padding-top: 38px; }
 .learner-notes-toolbar { display: flex; gap: 8px; }
 .learner-notes-toolbar button { min-width: 42px; height: 36px; padding: 0 11px; border: 1px solid #d4d7d2; border-radius: 6px; color: var(--ink); background: white; font: inherit; font-size: .82rem; cursor: pointer; }
 .learner-notes-toolbar button:hover { border-color: var(--accent); }
-.learner-notes-editor { min-height: 220px; padding: 14px; overflow-y: auto; border: 1px solid #d4d7d2; border-radius: 8px; background: white; line-height: 1.5; outline: none; }
+.learner-notes-editor { min-height: 220px; max-height: 360px; padding: 14px; overflow-y: auto; border: 1px solid #d4d7d2; border-radius: 8px; background: white; line-height: 1.5; outline: none; }
 .learner-notes-editor:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30,89,64,.12); }
 .learner-notes-editor:empty::before { content: attr(data-placeholder); color: #9aa19d; pointer-events: none; }
 .learner-notes-save { display: block; margin: 10px 0 0 auto; padding: 8px 14px; border-radius: 8px; font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
