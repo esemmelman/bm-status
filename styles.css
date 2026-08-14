@@ -46,6 +46,7 @@ h2 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.15rem); letter-spacing: -.02em;
 .version { color: var(--muted); font-size: .7rem; letter-spacing: .04em; }
 
 section { padding-top: 38px; }
+.student-section { width: calc(100vw - 110px); margin-left: calc(50% - 50vw + 55px); }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 18px; }
 .section-heading > p { max-width: 330px; margin: 0 0 2px; color: var(--muted); font-size: .88rem; line-height: 1.5; }
 .student-list { display: flex; gap: 10px; overflow-x: auto; padding: 4px 3px 10px; scrollbar-width: thin; }
@@ -152,6 +153,7 @@ input[type="date"]:focus-visible, button:focus-visible { outline: 3px solid rgba
   .save-state { margin-top: 4px; font-size: 0; }
   .save-state::after { content: "Cloud"; font-size: .76rem; }
   .section-heading { display: block; }
+  .student-section { width: auto; margin-left: 0; }
   .section-heading > p { margin-top: 8px; }
   .progress-title .legend { justify-content: flex-start; margin-top: 12px; }
   .learner-option { flex-basis: 165px; }
