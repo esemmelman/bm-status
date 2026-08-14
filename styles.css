@@ -59,7 +59,7 @@ section { padding-top: 38px; }
 .doc-button { display: block; margin: 6px auto 0; padding: 3px 11px; border: 1px solid #cbd0cb; border-radius: 6px; color: var(--accent); background: rgba(255,255,255,.7); font: inherit; font-size: .72rem; font-weight: 700; cursor: pointer; }
 .doc-button:hover, .doc-button[aria-expanded="true"] { border-color: var(--accent); color: white; background: var(--accent); }
 .learner-notes[hidden] { display: none; }
-.learner-notes { margin-top: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.58); }
+.learner-notes { width: min(780px, 100%); margin: 12px auto 0; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.58); }
 .learner-notes-heading { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
 .learner-notes-toolbar { display: flex; gap: 8px; }
 .learner-notes-toolbar button { min-width: 42px; height: 36px; padding: 0 11px; border: 1px solid #d4d7d2; border-radius: 6px; color: var(--ink); background: white; font: inherit; font-size: .82rem; cursor: pointer; }
