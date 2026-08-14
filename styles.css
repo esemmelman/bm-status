@@ -42,6 +42,8 @@ h1 { margin: 0; font-size: clamp(2.4rem, 6vw, 4rem); line-height: .9; letter-spa
 h2 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.15rem); letter-spacing: -.02em; }
 .save-state { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .78rem; }
 .save-state span { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+.masthead-meta { display: grid; justify-items: end; gap: 7px; }
+.version { color: var(--muted); font-size: .7rem; letter-spacing: .04em; }
 
 section { padding-top: 38px; }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 18px; }
@@ -148,7 +150,7 @@ input[type="date"]:focus-visible, button:focus-visible { outline: 3px solid rgba
   .app-shell { width: min(100% - 28px, 1040px); padding-top: 30px; }
   .masthead { align-items: flex-start; }
   .save-state { margin-top: 4px; font-size: 0; }
-  .save-state::after { content: "Saved"; font-size: .76rem; }
+  .save-state::after { content: "Cloud"; font-size: .76rem; }
   .section-heading { display: block; }
   .section-heading > p { margin-top: 8px; }
   .progress-title .legend { justify-content: flex-start; margin-top: 12px; }
