@@ -196,7 +196,9 @@ function appendCurrentDate(editor) {
   }
 
   const dateLine = document.createElement("div");
-  dateLine.textContent = currentDateStamp();
+  const dateText = document.createElement("strong");
+  dateText.textContent = currentDateStamp();
+  dateLine.append(dateText);
   editor.append(dateLine);
   const cursorLine = appendBlankLine();
   editor.focus();
