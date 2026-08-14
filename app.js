@@ -165,6 +165,29 @@ function formatShortDate(date) {
   }).format(new Date(`${date}T12:00:00`));
 }
 
+function currentDateStamp() {
+  const now = new Date();
+  return `${now.getMonth() + 1}-${now.getDate()}-${String(now.getFullYear()).slice(-2)}`;
+}
+
+function appendCurrentDate(editor) {
+  const dateLine = document.createElement("div");
+  dateLine.textContent = currentDateStamp();
+  if (editor.textContent.trim()) {
+    const blankLine = document.createElement("div");
+    blankLine.append(document.createElement("br"));
+    editor.append(blankLine);
+  }
+  editor.append(dateLine);
+  editor.focus();
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(dateLine);
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
 function renderStudents() {
   studentList.innerHTML = students.map(student => `
     <div class="learner-option">
@@ -354,6 +377,10 @@ skillList.addEventListener("click", event => {
 });
 
 document.querySelector(".notes-toolbar").addEventListener("click", event => {
+  if (event.target.closest("[data-insert-date]")) {
+    appendCurrentDate(notesEditor);
+    return;
+  }
   const button = event.target.closest("[data-command]");
   if (!button) return;
   notesEditor.focus();
@@ -361,6 +388,10 @@ document.querySelector(".notes-toolbar").addEventListener("click", event => {
 });
 
 document.querySelector(".learner-notes-toolbar").addEventListener("click", event => {
+  if (event.target.closest("[data-learner-insert-date]")) {
+    appendCurrentDate(learnerNotesEditor);
+    return;
+  }
   const button = event.target.closest("[data-learner-command]");
   if (!button) return;
   learnerNotesEditor.focus();
