@@ -175,19 +175,28 @@ function currentDateStamp() {
 }
 
 function appendCurrentDate(editor) {
+  const hasContent = Boolean(editor.textContent.trim());
+  const appendBlankLine = () => {
+    const line = document.createElement("div");
+    line.append(document.createElement("br"));
+    editor.append(line);
+    return line;
+  };
+
+  if (hasContent) {
+    appendBlankLine();
+    appendBlankLine();
+  }
+
   const dateLine = document.createElement("div");
   dateLine.textContent = currentDateStamp();
-  if (editor.textContent.trim()) {
-    const blankLine = document.createElement("div");
-    blankLine.append(document.createElement("br"));
-    editor.append(blankLine);
-  }
   editor.append(dateLine);
+  const cursorLine = appendBlankLine();
   editor.focus();
   const selection = window.getSelection();
   const range = document.createRange();
-  range.selectNodeContents(dateLine);
-  range.collapse(false);
+  range.setStart(cursorLine, 0);
+  range.collapse(true);
   selection.removeAllRanges();
   selection.addRange(range);
 }
