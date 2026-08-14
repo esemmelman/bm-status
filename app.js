@@ -167,7 +167,11 @@ function formatShortDate(date) {
 
 function currentDateStamp() {
   const now = new Date();
-  return `${now.getMonth() + 1}-${now.getDate()}-${String(now.getFullYear()).slice(-2)}`;
+  const hours = now.getHours();
+  const displayHours = hours % 12 || 12;
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const period = hours >= 12 ? "pm" : "am";
+  return `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()} ${displayHours}:${minutes} ${period}`;
 }
 
 function appendCurrentDate(editor) {
