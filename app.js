@@ -36,7 +36,7 @@ const supabaseUrl = "https://fgomaujsdblpzxhnnqrg.supabase.co";
 const supabasePublishableKey = "sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i";
 const database = window.supabase.createClient(supabaseUrl, supabasePublishableKey);
 
-let selectedStudent = students[0];
+let selectedStudent = "Aria Thakur";
 let statuses = loadStatuses();
 let notes = loadData(notesStorageKey);
 let learnerNotes = loadData(learnerNotesStorageKey);
