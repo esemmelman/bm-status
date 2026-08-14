@@ -24,6 +24,10 @@ const levelLabels = { green: "Mastered", yellow: "Learning", red: "Needs work" }
 const storageKey = "mastery-map-statuses-v1";
 const notesStorageKey = "mastery-map-notes-v1";
 const learnerNotesStorageKey = "mastery-map-learner-notes-v1";
+const migrationStorageKey = "mastery-map-supabase-migrated-v1";
+const supabaseUrl = "https://fgomaujsdblpzxhnnqrg.supabase.co";
+const supabasePublishableKey = "sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i";
+const database = window.supabase.createClient(supabaseUrl, supabasePublishableKey);
 
 let selectedStudent = students[0];
 let statuses = loadStatuses();
@@ -62,6 +66,70 @@ function loadData(key) {
   } catch {
     return {};
   }
+}
+
+function sanitizeRichText(html) {
+  const template = document.createElement("template");
+  const allowedTags = new Set(["B", "STRONG", "I", "EM", "UL", "OL", "LI", "P", "DIV", "BR"]);
+  template.innerHTML = html;
+  template.content.querySelectorAll("*").forEach(element => {
+    if (!allowedTags.has(element.tagName)) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    [...element.attributes].forEach(attribute => element.removeAttribute(attribute.name));
+  });
+  return template.innerHTML;
+}
+
+async function migrateLocalData() {
+  if (localStorage.getItem(migrationStorageKey)) return;
+
+  const statusRows = Object.entries(statuses).map(([key, level]) => {
+    const [learner, skill, assessment_date] = key.split("::");
+    return { learner, skill, assessment_date, level };
+  });
+  const skillNoteRows = Object.entries(notes).map(([key, content]) => {
+    const [learner, skill] = key.split("::");
+    return { learner, skill, content: sanitizeRichText(content) };
+  });
+  const learnerNoteRows = Object.entries(learnerNotes)
+    .map(([learner, content]) => ({ learner, content: sanitizeRichText(content) }));
+
+  const migrations = [];
+  if (statusRows.length) migrations.push(database.from("bm_statuses").upsert(statusRows));
+  if (skillNoteRows.length) migrations.push(database.from("bm_skill_notes").upsert(skillNoteRows));
+  if (learnerNoteRows.length) migrations.push(database.from("bm_learner_notes").upsert(learnerNoteRows));
+
+  const results = await Promise.all(migrations);
+  const failure = results.find(result => result.error)?.error;
+  if (failure) throw failure;
+
+  localStorage.removeItem(storageKey);
+  localStorage.removeItem(notesStorageKey);
+  localStorage.removeItem(learnerNotesStorageKey);
+  localStorage.setItem(migrationStorageKey, "true");
+}
+
+async function loadSupabaseData() {
+  const [statusResult, skillNotesResult, learnerNotesResult] = await Promise.all([
+    database.from("bm_statuses").select("learner, skill, assessment_date, level"),
+    database.from("bm_skill_notes").select("learner, skill, content"),
+    database.from("bm_learner_notes").select("learner, content")
+  ]);
+  const failure = [statusResult, skillNotesResult, learnerNotesResult]
+    .find(result => result.error)?.error;
+  if (failure) throw failure;
+
+  statuses = Object.fromEntries(statusResult.data.map(row => [
+    recordKey(row.learner, row.skill, row.assessment_date), row.level
+  ]));
+  notes = Object.fromEntries(skillNotesResult.data.map(row => [
+    noteKey(row.learner, row.skill), sanitizeRichText(row.content)
+  ]));
+  learnerNotes = Object.fromEntries(learnerNotesResult.data.map(row => [
+    row.learner, sanitizeRichText(row.content)
+  ]));
 }
 
 function toLocalDate(date) {
@@ -179,26 +247,53 @@ function renderHistory() {
   `).join("");
 }
 
-function saveStatus(skill, level) {
+async function saveStatus(skill, level) {
   if (!dateInput.value) {
     dateInput.focus();
     dateInput.showPicker?.();
     return;
   }
   const key = recordKey(selectedStudent, skill, dateInput.value);
+  const previous = statuses[key];
   statuses[key] = level;
-  localStorage.setItem(storageKey, JSON.stringify(statuses));
   renderSkills();
   renderHistory();
+  const { error } = await database.from("bm_statuses").upsert({
+    learner: selectedStudent,
+    skill,
+    assessment_date: dateInput.value,
+    level,
+    updated_at: new Date().toISOString()
+  });
+  if (error) {
+    if (previous) statuses[key] = previous;
+    else delete statuses[key];
+    renderSkills();
+    renderHistory();
+    showToast("Could not save status");
+    return;
+  }
   showToast();
 }
 
-function clearStatus(skill) {
+async function clearStatus(skill) {
   if (!dateInput.value) return;
-  delete statuses[recordKey(selectedStudent, skill, dateInput.value)];
-  localStorage.setItem(storageKey, JSON.stringify(statuses));
+  const key = recordKey(selectedStudent, skill, dateInput.value);
+  const previous = statuses[key];
+  delete statuses[key];
   renderSkills();
   renderHistory();
+  const { error } = await database.from("bm_statuses").delete()
+    .eq("learner", selectedStudent)
+    .eq("skill", skill)
+    .eq("assessment_date", dateInput.value);
+  if (error) {
+    if (previous) statuses[key] = previous;
+    renderSkills();
+    renderHistory();
+    showToast("Could not clear status");
+    return;
+  }
   showToast("Status cleared");
 }
 
@@ -272,21 +367,51 @@ document.querySelector(".learner-notes-toolbar").addEventListener("click", event
   document.execCommand(button.dataset.learnerCommand, false);
 });
 
-document.querySelector("#save-learner-notes").addEventListener("click", () => {
-  const content = learnerNotesEditor.innerHTML.trim();
-  if (!learnerNotesEditor.textContent.trim()) delete learnerNotes[selectedStudent];
-  else learnerNotes[selectedStudent] = content;
-  localStorage.setItem(learnerNotesStorageKey, JSON.stringify(learnerNotes));
+document.querySelector("#save-learner-notes").addEventListener("click", async () => {
+  const content = sanitizeRichText(learnerNotesEditor.innerHTML.trim());
+  let error;
+  if (!learnerNotesEditor.textContent.trim()) {
+    ({ error } = await database.from("bm_learner_notes").delete()
+      .eq("learner", selectedStudent));
+    if (!error) delete learnerNotes[selectedStudent];
+  } else {
+    ({ error } = await database.from("bm_learner_notes").upsert({
+      learner: selectedStudent,
+      content,
+      updated_at: new Date().toISOString()
+    }));
+    if (!error) learnerNotes[selectedStudent] = content;
+  }
+  if (error) {
+    showToast("Could not save learner notes");
+    return;
+  }
   showToast("Learner notes saved");
 });
 
-document.querySelector("#save-notes").addEventListener("click", () => {
+document.querySelector("#save-notes").addEventListener("click", async () => {
   if (!activeNoteSkill) return;
   const key = noteKey(selectedStudent, activeNoteSkill);
-  const content = notesEditor.innerHTML.trim();
-  if (!notesEditor.textContent.trim()) delete notes[key];
-  else notes[key] = content;
-  localStorage.setItem(notesStorageKey, JSON.stringify(notes));
+  const content = sanitizeRichText(notesEditor.innerHTML.trim());
+  let error;
+  if (!notesEditor.textContent.trim()) {
+    ({ error } = await database.from("bm_skill_notes").delete()
+      .eq("learner", selectedStudent)
+      .eq("skill", activeNoteSkill));
+    if (!error) delete notes[key];
+  } else {
+    ({ error } = await database.from("bm_skill_notes").upsert({
+      learner: selectedStudent,
+      skill: activeNoteSkill,
+      content,
+      updated_at: new Date().toISOString()
+    }));
+    if (!error) notes[key] = content;
+  }
+  if (error) {
+    showToast("Could not save item notes");
+    return;
+  }
   notesDialog.close();
   renderSkills();
   showToast("Notes saved");
@@ -302,7 +427,18 @@ historyList.addEventListener("click", event => {
   document.querySelector(".progress-section").scrollIntoView({ behavior: "smooth" });
 });
 
-renderStudents();
-renderLearnerNotes();
-renderSkills();
-renderHistory();
+async function initialize() {
+  try {
+    await migrateLocalData();
+    await loadSupabaseData();
+  } catch (error) {
+    console.error(error);
+    showToast("Could not connect to database");
+  }
+  renderStudents();
+  renderLearnerNotes();
+  renderSkills();
+  renderHistory();
+}
+
+initialize();
