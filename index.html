@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f4ee" />
+    <title>Mastery Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="masthead">
+        <div>
+          <h1>B'Nai Mitzvah Status</h1>
+        </div>
+        <div class="save-state"><span aria-hidden="true"></span>Saved on this device</div>
+      </header>
+
+      <section aria-label="Choose a learner" class="student-section">
+        <div id="student-list" class="student-list" role="listbox" aria-label="Learners"></div>
+        <div class="learner-notes" hidden>
+          <div class="learner-notes-heading">
+            <div class="learner-notes-toolbar" role="toolbar" aria-label="Learner note formatting">
+              <button type="button" data-learner-command="bold" aria-label="Bold"><strong>B</strong></button>
+              <button type="button" data-learner-command="italic" aria-label="Italic"><em>I</em></button>
+              <button type="button" data-learner-command="insertUnorderedList" aria-label="Bulleted list">• List</button>
+              <button type="button" data-learner-command="insertOrderedList" aria-label="Numbered list">1. List</button>
+            </div>
+          </div>
+          <div id="learner-notes-editor" class="learner-notes-editor" contenteditable="true" role="textbox" aria-label="Learner notes" aria-multiline="true" data-placeholder="Add notes for this learner…"></div>
+          <button id="save-learner-notes" class="primary-button learner-notes-save" type="button">Save learner notes</button>
+        </div>
+      </section>
+
+      <section aria-labelledby="progress-heading" class="progress-section">
+        <div class="section-heading progress-title">
+          <div>
+            <h2 id="progress-heading"><span id="selected-name">Aria</span>’s progress</h2>
+          </div>
+          <div class="legend" aria-label="Mastery level legend">
+            <span><i class="dot green"></i>Mastered</span>
+            <span><i class="dot yellow"></i>Learning</span>
+            <span><i class="dot red"></i>Needs work</span>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <div class="entry-bar">
+            <label for="status-date">Date of assessment</label>
+            <div class="date-wrap">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"/></svg>
+              <input id="status-date" type="date" />
+            </div>
+          </div>
+
+          <div id="skill-list" class="skill-list"></div>
+        </div>
+        <p class="helper">Choose a date, then tap a color to record mastery. Use × to clear an item’s status.</p>
+      </section>
+
+      <section aria-labelledby="history-heading" class="history-section">
+        <div class="section-heading history-title">
+          <div>
+            <p class="step">03</p>
+            <h2 id="history-heading">Assessment history</h2>
+          </div>
+          <p id="history-summary"></p>
+        </div>
+        <div id="history-list" class="history-list"></div>
+      </section>
+    </main>
+
+    <dialog id="notes-dialog" class="notes-dialog">
+      <form method="dialog" class="notes-card">
+        <header class="notes-header">
+          <div>
+            <p class="eyebrow">Learner notes</p>
+            <h2 id="notes-title">Item notes</h2>
+            <p id="notes-person" class="notes-person"></p>
+          </div>
+          <button class="dialog-close" value="cancel" aria-label="Close notes">×</button>
+        </header>
+        <div class="notes-toolbar" role="toolbar" aria-label="Text formatting">
+          <button type="button" data-command="bold" aria-label="Bold"><strong>B</strong></button>
+          <button type="button" data-command="italic" aria-label="Italic"><em>I</em></button>
+          <button type="button" data-command="insertUnorderedList" aria-label="Bulleted list">• List</button>
+          <button type="button" data-command="insertOrderedList" aria-label="Numbered list">1. List</button>
+        </div>
+        <div id="notes-editor" class="notes-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Add observations, reminders, or next steps…"></div>
+        <footer class="notes-actions">
+          <button class="secondary-button" value="cancel">Cancel</button>
+          <button id="save-notes" class="primary-button" type="button">Save notes</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Progress saved</div>
+    <script src="app.js"></script>
+  </body>
+</html>
