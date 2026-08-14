@@ -1,4 +1,11 @@
-const students = ["Aria Thakur", "Avery Steinberg", "Brady Lustig", "Vivienne Bukrinsky"];
+const students = [
+  "Alex Pasternak",
+  "Aria Thakur",
+  "Avery Steinberg",
+  "Brady Lustig",
+  "Ellie Mueller",
+  "Vivienne Bukrinsky"
+];
 const skills = [
   "Blessing over Talit",
   "Elohai Neshama",
