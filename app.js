@@ -32,6 +32,7 @@ const storageKey = "mastery-map-statuses-v1";
 const notesStorageKey = "mastery-map-notes-v1";
 const learnerNotesStorageKey = "mastery-map-learner-notes-v1";
 const migrationStorageKey = "mastery-map-supabase-migrated-v1";
+const syncIntervalMs = 30000;
 const supabaseUrl = "https://fgomaujsdblpzxhnnqrg.supabase.co";
 const supabasePublishableKey = "sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i";
 const database = window.supabase.createClient(supabaseUrl, supabasePublishableKey);
@@ -42,6 +43,7 @@ let notes = loadData(notesStorageKey);
 let learnerNotes = loadData(learnerNotesStorageKey);
 let activeNoteSkill = null;
 let learnerNotesOpen = false;
+let syncInProgress = false;
 
 const studentList = document.querySelector("#student-list");
 const skillList = document.querySelector("#skill-list");
@@ -90,8 +92,6 @@ function sanitizeRichText(html) {
 }
 
 async function migrateLocalData() {
-  if (localStorage.getItem(migrationStorageKey)) return;
-
   const statusRows = Object.entries(statuses).map(([key, level]) => {
     const [learner, skill, assessment_date] = key.split("::");
     return { learner, skill, assessment_date, level };
@@ -102,6 +102,11 @@ async function migrateLocalData() {
   });
   const learnerNoteRows = Object.entries(learnerNotes)
     .map(([learner, content]) => ({ learner, content: sanitizeRichText(content) }));
+
+  if (!statusRows.length && !skillNoteRows.length && !learnerNoteRows.length) {
+    localStorage.setItem(migrationStorageKey, "true");
+    return;
+  }
 
   const migrations = [];
   if (statusRows.length) migrations.push(database.from("bm_statuses").upsert(statusRows));
@@ -137,6 +142,31 @@ async function loadSupabaseData() {
   learnerNotes = Object.fromEntries(learnerNotesResult.data.map(row => [
     row.learner, sanitizeRichText(row.content)
   ]));
+}
+
+function editorIsActive() {
+  return document.activeElement === notesEditor || document.activeElement === learnerNotesEditor;
+}
+
+async function syncFromSupabase({ notify = false } = {}) {
+  if (syncInProgress || !navigator.onLine || editorIsActive()) return;
+  syncInProgress = true;
+  try {
+    await loadSupabaseData();
+    renderStudents();
+    renderLearnerNotes();
+    renderSkills();
+    renderHistory();
+    if (notesDialog.open && activeNoteSkill) {
+      notesEditor.innerHTML = notes[noteKey(selectedStudent, activeNoteSkill)] || "";
+    }
+    if (notify) showToast("Data synchronized");
+  } catch (error) {
+    console.error(error);
+    if (notify) showToast("Could not synchronize data");
+  } finally {
+    syncInProgress = false;
+  }
 }
 
 function toLocalDate(date) {
@@ -505,6 +535,13 @@ async function initialize() {
   renderLearnerNotes();
   renderSkills();
   renderHistory();
+
+  window.setInterval(syncFromSupabase, syncIntervalMs);
+  window.addEventListener("focus", () => syncFromSupabase());
+  window.addEventListener("online", () => syncFromSupabase({ notify: true }));
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") syncFromSupabase();
+  });
 }
 
 initialize();
