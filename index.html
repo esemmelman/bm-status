@@ -12,19 +12,23 @@
   </head>
   <body>
     <main class="app-shell">
-      <header class="masthead">
-        <div>
-          <h1>B'nai Mitzvah Status</h1>
-        </div>
-        <div class="masthead-meta">
-          <div class="save-state"><span aria-hidden="true"></span>Saved to Supabase</div>
-          <div class="version">Version 1.1.8</div>
-        </div>
-      </header>
+      <div class="frozen-header">
+        <header class="masthead">
+          <div>
+            <h1>B'nai Mitzvah Status</h1>
+          </div>
+          <div class="masthead-meta">
+            <div class="save-state"><span aria-hidden="true"></span>Saved to Supabase</div>
+            <div class="version">Version 1.1.9</div>
+          </div>
+        </header>
 
-      <section aria-label="Choose a learner" class="student-section">
-        <div id="student-list" class="student-list" role="listbox" aria-label="Learners"></div>
-        <div class="learner-notes" hidden>
+        <section aria-label="Choose a learner" class="student-section">
+          <div id="student-list" class="student-list" role="listbox" aria-label="Learners"></div>
+        </section>
+      </div>
+
+      <div class="learner-notes" hidden>
           <div class="learner-notes-heading">
             <div class="learner-notes-toolbar" role="toolbar" aria-label="Learner note formatting">
               <button type="button" data-learner-command="bold" aria-label="Bold"><strong>B</strong></button>
@@ -36,8 +40,7 @@
           </div>
           <div id="learner-notes-editor" class="learner-notes-editor" contenteditable="true" role="textbox" aria-label="Learner notes" aria-multiline="true" data-placeholder="Add notes for this learner…"></div>
           <button id="save-learner-notes" class="primary-button learner-notes-save" type="button">Save learner notes</button>
-        </div>
-      </section>
+      </div>
 
       <section aria-labelledby="progress-heading" class="progress-section">
         <div class="section-heading progress-title">

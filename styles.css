@@ -35,6 +35,8 @@ body::before {
 }
 
 .app-shell { width: min(1040px, calc(100% - 40px)); margin: 0 auto; padding: 52px 0 72px; }
+.frozen-header { position: sticky; top: 0; z-index: 20; padding-top: 1px; background: rgba(245,242,235,.96); box-shadow: 0 14px 24px rgba(24,37,31,.06); backdrop-filter: blur(12px); }
+.frozen-header::before { content: ""; position: absolute; z-index: -1; inset: 0 calc(50% - 50vw); background: inherit; }
 .masthead { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 28px; border-bottom: 1px solid #cfcfc7; }
 .eyebrow, .step { margin: 0 0 6px; color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
 h1, h2 { font-family: "Newsreader", serif; font-weight: 600; }
