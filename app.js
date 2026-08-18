@@ -238,6 +238,10 @@ function appendCurrentDate(editor) {
   range.collapse(true);
   selection.removeAllRanges();
   selection.addRange(range);
+  requestAnimationFrame(() => {
+    editor.scrollTop = editor.scrollHeight;
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+  });
 }
 
 function renderStudents() {
